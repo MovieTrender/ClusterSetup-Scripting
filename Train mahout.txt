@@ -2,71 +2,71 @@
 ==========================================================================================
 #Cluster
 #Connect to Cluster
-ssh -i HadoopCluster.pem hadoop@54.72.183.40
+	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
 
 #Install GIT
-sudo yum install git
+	sudo yum install git
 
 
 #Install S3CMD
-cd /etc/yum.repos.d
-sudo wget http://s3tools.org/repo/RHEL_6/s3tools.repo
-sudo yum install s3cmd
-s3cmd --configure
-sudo yum install s3cmd
+	cd /etc/yum.repos.d
+	sudo wget http://s3tools.org/repo/RHEL_6/s3tools.repo
+	sudo yum install s3cmd
+	s3cmd --configure
+	sudo yum install s3cmd
 
 
 #Download the files
-s3cmd get s3://vrdp01SentimentTraining/Positive/*
-s3cmd get s3://vrdp01SentimentTraining/Negative/*
+	s3cmd get s3://vrdp01SentimentTraining/Positive/*
+	s3cmd get s3://vrdp01SentimentTraining/Negative/*
 
 
 #Untar files
-tar -zxvf Negative.tar.gz 
-tar -zxvf Positive.tar.gz
+	tar -zxvf Negative.tar.gz 
+	tar -zxvf Positive.tar.gz
 
 
 #Create the folders
-hadoop fs -mkdir /users/hadoop/sentimentTraining
+	hadoop fs -mkdir /users/hadoop/sentimentTraining
 
 
 #Generate the sequence file for mahout
-hadoop jar mahoutSequenceGenerator.jar "Positive" /mnt/sentiment/Positive sentimentSet/PositiveTraining
-hadoop jar mahoutSequenceGenerator.jar "Negative" /mnt/sentiment/Negative sentimentSet/NegativeTraining
+	hadoop jar mahoutSequenceGenerator.jar "Positive" /mnt/sentiment/Positive sentimentSet/PositiveTraining
+	hadoop jar mahoutSequenceGenerator.jar "Negative" /mnt/sentiment/Negative sentimentSet/NegativeTraining
 
 #Generate the sparse vectors
-mahout seq2sparse -i sentimentSet -o sentimentSetVectors -lnorm -nv -wt tfidf
+	mahout seq2sparse -i sentimentSet -o sentimentSetVectors -lnorm -nv -wt tfidf
 
 #Split the set in training and testing
-mahout split -i sentimentSetVectors/tfidf-vectors --trainingOutput sentimentSetVecTrn --testOutput sentimentSetVecTst --randomSelectionPct 20 --overwrite --sequenceFiles -xm sequential
+	mahout split -i sentimentSetVectors/tfidf-vectors --trainingOutput sentimentSetVecTrn --testOutput sentimentSetVecTst --randomSelectionPct 20 --overwrite --sequenceFiles -xm sequential
 
 #Train the Naives Bayes 
-mahout trainnb -i sentimentSetVecTrn -el -o sentimentModel -li sentimentLabelIndex -ow
+	mahout trainnb -i sentimentSetVecTrn -el -o sentimentModel -li sentimentLabelIndex -ow
 
 #Test the model for Naives Bayes
-mahout testnb -i sentimentSetVecTst -m sentimentModel -l sentimentLabelIndex -ow -o sentimentTestOutput
+	mahout testnb -i sentimentSetVecTst -m sentimentModel -l sentimentLabelIndex -ow -o sentimentTestOutput
 
-=======================================================
-Summary
--------------------------------------------------------
-Correctly Classified Instances          :     459066	   85,7292%
-Incorrectly Classified Instances        :      76418	   14,2708%
-Total Classified Instances              :     535484
+	=======================================================
+	Summary
+	-------------------------------------------------------
+	Correctly Classified Instances          :     459066	   85,7292%
+	Incorrectly Classified Instances        :      76418	   14,2708%
+	Total Classified Instances              :     535484
 
-=======================================================
-Confusion Matrix
--------------------------------------------------------
-a    	b    	<--Classified as
-207805	56028	 |  263833	a     = Negative
-20390	251261	 |  271651	b     = Positive
+	=======================================================
+	Confusion Matrix
+	-------------------------------------------------------
+	a    	b    	<--Classified as
+	207805	56028	 |  263833	a     = Negative
+	20390	251261	 |  271651	b     = Positive
 
-=======================================================
-Statistics
--------------------------------------------------------
-Kappa                                      -0,7059
-Accuracy                                   85,7292%
-Reliability                                 57,086%
-Reliability (standard deviation)            0,4991
+	=======================================================
+	Statistics
+	-------------------------------------------------------
+	Kappa                                      -0,7059
+	Accuracy                                   85,7292%
+	Reliability                                 57,086%
+	Reliability (standard deviation)            0,4991
 
 
 
@@ -77,38 +77,17 @@ Reliability (standard deviation)            0,4991
 #Local Computer 
  
 #Connect to local computer
-ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
+	ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
 
 #Execute in background the download of Tweets
-sudo setsid python TweetExtractor.py Configuration/ConfigurationTrainingPositive.json > /dev/null 2>&1 < /dev/null &
+	sudo setsid python TweetExtractor.py Configuration/ConfigurationTrainingPositive.json > /dev/null 2>&1 < /dev/null &
 
 #Zip the tweets
-tar -zcvf Negative.tar.gz Negative
-tar -zcvf Positive.tar.gz Positive
+	tar -zcvf Negative.tar.gz Negative
+	tar -zcvf Positive.tar.gz Positive
 
 #Upload the zip to S3
-s3cmd put Netagive.tar.gz s3://vrdp01SentimentTraining/Negative/
-s3cmd put Positive.tar.gz s3://vrdp01SentimentTraining/Positive/
+	s3cmd put Netagive.tar.gz s3://vrdp01SentimentTraining/Negative/
+	s3cmd put Positive.tar.gz s3://vrdp01SentimentTraining/Positive/
 
 ==========================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
