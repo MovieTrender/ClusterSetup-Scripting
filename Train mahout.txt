@@ -1,0 +1,182 @@
+==========================================================================================
+#Cluster
+#Connect to Cluster
+ssh -i HadoopCluster.pem hadoop@54.72.183.40
+
+#Install GIT
+sudo yum install git
+
+
+#Install S3CMD
+cd /etc/yum.repos.d
+sudo wget http://s3tools.org/repo/RHEL_6/s3tools.repo
+sudo yum install s3cmd
+s3cmd --configure
+sudo yum install s3cmd
+
+
+#Download the files
+s3cmd get s3://vrdp01SentimentTraining/Positive/*
+s3cmd get s3://vrdp01SentimentTraining/Negative/*
+
+
+#Untar files
+tar -zxvf Negative.tar.gz 
+tar -zxvf Positive.tar.gz
+
+
+#Create the folders
+hadoop fs -mkdir /users/hadoop/sentimentTraining
+
+
+#Generate the sequence file for mahout
+hadoop jar mahoutSequenceGenerator.jar "Positive" /mnt/sentiment/Positive sentimentSet/PositiveTraining
+hadoop jar mahoutSequenceGenerator.jar "Negative" /mnt/sentiment/Negative sentimentSet/NegativeTraining
+
+#Generate the sparse vectors
+mahout seq2sparse -i sentimentSet -o sentimentSetVectors -lnorm -nv -wt tfidf
+
+#Split the set in training and testing
+mahout split -i sentimentSetVectors/tfidf-vectors --trainingOutput sentimentSetVecTrn --testOutput sentimentSetVecTst --randomSelectionPct 90 --overwrite --sequenceFiles -xm sequential
+
+#Train the Naives Bayes 
+mahout trainnb -i sentimentSetVecTrn -el -o sentimentModel -li sentimentLabelIndex -ow
+
+#Test the model for Naives Bayes
+
+
+==========================================================================================
+#Local Computer 
+ 
+#Connect to local computer
+ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
+
+#Execute in background the download of Tweets
+sudo setsid python TweetExtractor.py Configuration/ConfigurationTrainingPositive.json > /dev/null 2>&1 < /dev/null &
+
+#Zip the tweets
+tar -zcvf Negative.tar.gz Negative
+
+#Upload the zip to S3
+s3cmd put Netagive.tar.gz s3://vrdp01SentimentTraining/Negative/
+
+
+==========================================================================================
+
+
+#LOCAL
+
+#Creating working directory and setup the global variable
+mkdir sentimentTraining
+T_HOME= $HOME/sentimentTraining
+export T_HOME
+
+#Create the set
+$T_HOME/train/Negative/90%
+$T_HOME/train/Positive/90%
+
+$T_HOME/test/Negative/90%
+$T_HOME/test/Positive/90%
+
+$T_HOME/set/Negative
+$T_HOME/set/Positive
+
+#Change the permissions
+sudo chmod --recursive 777 rootDir
+
+#Copy the files to the different folders
+cd $T_HOME/set/Positive
+ls -1 * | head -n 45000 | while read file; do cp $file $T_HOME/train/Positive/$file; done
+ls -1 * | tail -n 4000  | while read file; do cp $file $T_HOME/test/Positive/$file; done
+
+ls -1 * | head -n 45000 | while read file; do cp $file $T_HOME/train/Negative/$file; done
+ls -1 * | tail -n 4000  | while read file; do cp $file $T_HOME/test/Negative/$file; done
+
+==========================================================================================
+#HDFS
+
+#Create directory tree
+hadoop fs -mkdir sentiment
+hadoop fs -mkdir sentiment/train
+hadoop fs -mkdir sentiment/test
+hadoop fs -mkdir sentiment/train/Positive
+hadoop fs -mkdir sentiment/train/Negative
+hadoop fs -mkdir sentiment/test/Positive
+hadoop fs -mkdir sentiment/test/Negative
+
+#Upload sets for training and test
+cd $T_HOME/train/Positive
+hadoop fs -put * sentiment/train/Positive
+
+cd $T_HOME/train/Negative
+hadoop fs -put * sentiment/train/Negative
+
+cd $T_HOME/test/Positive
+hadoop fs -put * sentiment/test/Positive
+
+cd $T_HOME/test/Negative
+hadoop fs -put * sentiment/test/Negative
+
+
+#Convert directories to sequence files 
+mahout seqdirectory -i sentiment/train -o sentiment-train -c  UTF-8
+mahout seqdirectory -i sentiment/test -o sentiment-test -c UTF-8
+
+#Convert sequence files to sparse vectors
+mahout seq2sparse -i sentiment-train -o sentiment-train-vectors -lnorm -nv -wt tfidf
+mahout seq2sparse -i sentiment-test -o sentiment-test-vectors -lnrom -nv -wt tfidf 
+
+#Train the model with naives bayes
+mahout trainnb -i sentiment-train-vectors/tfidf-vectors -el -o sentiment-model -li sentiment-labelindex -ow
+
+#Test the model to see if works
+mahout testnb -i sentiment-test-vectors/tfidf-vectors -m sentiment-model -l sentiment-labelindex -ow -o sentiment-testingOutput
+
+
+-------------------------------------------------------
+Correctly Classified Instances          :       3996	   51.5613%
+Incorrectly Classified Instances        :       3754	   48.4387%
+Total Classified Instances              :       7750
+
+=======================================================
+Confusion Matrix
+-------------------------------------------------------
+a    	b    	<--Classified as
+2219 	1663 	 |  3882  	a     = Negative
+2091 	1777 	 |  3868  	b     = Positive
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
