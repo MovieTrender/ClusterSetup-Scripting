@@ -1,6 +1,35 @@
 ==========================================================================================
 ==========================================================================================
+====================	Download the train data from Twitter =============================
+==========================================================================================
+==========================================================================================
+
+#Local Computer 
+ 
+#Connect to local computer
+	ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
+
+#Execute in background the download of Tweets
+	sudo setsid python TweetExtractor.py Configuration/ConfigurationTrainingPositive.json > /dev/null 2>&1 < /dev/null &
+	
+
+#Zip the tweets
+	tar -zcvf Negative.tar.gz Negative
+	tar -zcvf Positive.tar.gz Positive
+
+#Upload the zip to S3
+	s3cmd put Netagive.tar.gz s3://vrdp01SentimentTraining/Negative/
+	s3cmd put Positive.tar.gz s3://vrdp01SentimentTraining/Positive/
+
+
+==========================================================================================
+==========================================================================================
+===================	Train the Sentiment Model in the cluster =============================
+==========================================================================================
+==========================================================================================
+
 #Cluster
+
 #Connect to Cluster
 	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
 
@@ -15,6 +44,11 @@
 	s3cmd --configure
 	sudo yum install s3cmd
 
+
+#Install tweepy
+	git clone git://github.com/joshthecoder/tweepy.git
+	cd tweepy
+	python setup.py install
 
 #Download the files
 	s3cmd get s3://vrdp01SentimentTraining/Positive/*
@@ -70,24 +104,16 @@
 
 
 
-==========================================================================================
-==========================================================================================
-==========================================================================================
-==========================================================================================
-#Local Computer 
- 
-#Connect to local computer
-	ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
 
-#Execute in background the download of Tweets
-	sudo setsid python TweetExtractor.py Configuration/ConfigurationTrainingPositive.json > /dev/null 2>&1 < /dev/null &
-
-#Zip the tweets
-	tar -zcvf Negative.tar.gz Negative
-	tar -zcvf Positive.tar.gz Positive
-
-#Upload the zip to S3
-	s3cmd put Netagive.tar.gz s3://vrdp01SentimentTraining/Negative/
-	s3cmd put Positive.tar.gz s3://vrdp01SentimentTraining/Positive/
 
 ==========================================================================================
+==========================================================================================
+=======================	   Set the extract from Twitter     ==============================
+==========================================================================================
+==========================================================================================
+#Connect to Cluster
+	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
+
+#Set the TweetExtractor
+	sudo setsid python TweetExtractor.py Configuration/Configuration.json > /dev/null 2>&1 < /dev/null &
+	ps -ef | grep TweetExtractor.py
