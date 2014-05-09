@@ -1,0 +1,24 @@
+==========================================================================================
+==========================================================================================
+===================			Classify data with Mahout		 =============================
+==========================================================================================
+==========================================================================================
+
+#Connect to Cluster
+	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
+
+#Generate the sparse vectors
+	hadoop fs -rm -R incoming/SetVectors/*
+	hadoop fs -rmdir incoming/SetVectors
+	mahout seq2sparse -i incoming/tweetsToClassify/20140506-182914 -o incoming/SetVectors -lnorm -nv -wt tfidf	
+		
+#Classify the tweets
+
+	cat /home/hadoop/conf/mapred-site.xml
+	hadoop fs -rm -R process/tweetsClassified/*
+	hadoop fs -rmdir process/tweetsClassified
+	hadoop jar TwitterClassifier.jar sentimentModel sentimentSetVectors/df-count/part-r-00002 sentimentSetVectors/dictionary.file-0 incoming/tweetsToClassify/20140506-182914 process/tweetsClassified
+	
+	
+	
+	
