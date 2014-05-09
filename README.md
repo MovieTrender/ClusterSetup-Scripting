@@ -1,3 +1,5 @@
+## Read [Project Documentation](https://github.com/MovieTrender/Documentation "Project Documentation")
+
 ##Cluster Setup & Scripting
 
 Steps for setup a Hadoop cluster and scripts for executing different layers of MovieTrender.
