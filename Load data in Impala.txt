@@ -1,0 +1,53 @@
+==========================================================================================
+==========================================================================================
+===================				Data flow with Pig			 =============================
+==========================================================================================
+==========================================================================================
+
+#Connect to Cluster
+	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
+
+#Download Parquet jar 
+	wget http://repo1.maven.org/maven2/com/twitter/parquet-pig-bundle/1.4.3/parquet-pig-bundle-1.4.3.jar	
+	
+#Untar Parquet jar
+	tar -zxvf parquet-pig-bundle-1.4.3.jar
+
+#Adding paths to PIG
+	export PIG_OPTS="-Dpig.additional.jars=$THRIFTJAR"
+	
+#Register the libs in PIG
+	cd libs
+	REGISTER parquet-pig-bundle-1.4.3.jar;
+	cd ..
+	
+	
+#Convert the files in Parquet
+	Tweets = LOAD 'incoming/tweets' using PigStorage(',') AS (
+		TweetID:chararray,
+		UserID:chararray,
+		UserName:chararray,
+		UserFollowers:int,
+		UserFriends:int,
+		UserTimeZone:chararray,
+		CreatedAt:chararray,
+		Tweet:chararray);
+		
+		
+#Store in Parquet format
+	store Tweets into 'impala/files' USING parquet.pig.ParquetStorer;
+	
+
+==========================================================================================
+==========================================================================================
+===================			Data flow into IMPALA			 =============================
+==========================================================================================
+==========================================================================================
+	
+
+#Impala 
+	create external table test (TweetID string, UserID string, UserName string, UserFollowers int, UserFriends int, UserTimeZone string, CreatedAt string, Tweet string) stored as parquetfile location '/user/hadoop/impala/files';	
+	
+	
+#Refresh
+	refresh	
