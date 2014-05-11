@@ -1,11 +1,14 @@
 ==========================================================================================
 ==========================================================================================
-=======================	   Set the extract from Twitter     ==============================
+=======================	   Set the Tweet Extraction 	    ==============================
 ==========================================================================================
 ==========================================================================================
-#Connect to Cluster
+
+#Connect to Cluster (aws)
 	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
 
-#Set the TweetExtractor
+#Set the TweetExtractor as a daemon.
 	sudo setsid python TweetExtractor.py Configuration/Configuration.json > /dev/null 2>&1 < /dev/null &
+
+#Check if the process is being executed
 	ps -ef | grep TweetExtractor.py

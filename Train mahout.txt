@@ -2,11 +2,9 @@
 ==========================================================================================
 ====================	Download the train data from Twitter =============================
 ==========================================================================================
-==========================================================================================
+========================================================================================== 
 
-#Local Computer 
- 
-#Connect to local computer
+#Connect to local computer (aws)
 	ssh -i HadoopCluster.pem ubuntu@54.72.220.189 
 
 #Execute in background the download of Tweets
@@ -28,9 +26,7 @@
 ==========================================================================================
 ==========================================================================================
 
-#Cluster
-
-#Connect to Cluster
+#Connect to Cluster (aws)
 	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
 
 #Install GIT
@@ -62,7 +58,6 @@
 
 #Create the folders
 	hadoop fs -mkdir /users/hadoop/sentimentTraining
-
 
 #Generate the sequence file for mahout
 	hadoop jar mahoutSequenceGenerator.jar "Positive" /mnt/sentiment/Positive sentimentSet/PositiveTraining

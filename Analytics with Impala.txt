@@ -1,0 +1,382 @@
+==========================================================================================
+==========================================================================================
+===================			Analytics with Impala   		  ============================
+==========================================================================================
+==========================================================================================
+#Connect to Cluster (aws)
+	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
+
+#Start impala
+	impala-shell
+
+#See popularity of crew for a movie (for all the movies)
+Query: 
+	select mt.movie, mt.position, mt.name, mt.followers, count(*) from tweetsFormat tf join movieTwitter mt on tf.movieid=mt.moviid group by mt.movie, mt.position, mt.name, mt.followers order by count(*) desc limit 100;
+	
+	
++----------------------------+----------+----------------------------+-----------+----------+
+| movie                      | position | name                       | followers | count(*) |
++----------------------------+----------+----------------------------+-----------+----------+
+| The Amazing Spider-Man 2   | Stars    | Emma Stone                 | 0         | 150211   |
+| The Amazing Spider-Man 2   | Stars    | Andrew Garfield            | 0         | 127682   |
+| X-Men: Days of Future Past | Star     | Jennifer Lawrence          | 0         | 62180    |
+| Maleficent                 | Star     | Angelina Jolie             | 0         | 38207    |
+| Transcendence              | Star     | Johnny Depp                | 0         | 17918    |
+| X-Men: Days of Future Past | Star     | Halle Berry                | 0         | 10013    |
+| Edge of Tomorrow           | Star     | Tom Cruise                 | 0         | 9480     |
+| The Amazing Spider-Man 2   | Movie    | The Amazing Spider-Man 2   | 212000    | 9088     |
+| X-Men: Days of Future Past | Star     | Michael Fassbender         | 0         | 8962     |
+| Transcendence              | Star     | Morgan Freeman             | 0         | 8091     |
+| The Amazing Spider-Man 2   | Stars    | Jamie Foxx                 | 3770000   | 7431     |
+| X-Men: Days of Future Past | Star     | Ellen Page                 | 942000    | 7398     |
+| Godzilla                   | Movie    | Godzilla                   | 28500     | 6958     |
+| X-Men: Days of Future Past | Star     | James McAvoy               | 0         | 6235     |
+| X-Men: Days of Future Past | Star     | Hugh Jackman               | 3970000   | 5912     |
+| Godzilla                   | Star     | Bryan Cranston             | 1350000   | 5442     |
+| X-Men: Days of Future Past | Star     | Patrick Stewart            | 1200000   | 5048     |
+| Maleficent                 | Star     | Elle Fanning               | 0         | 4920     |
+| The other woman            | Star     | Kate Upton                 | 1370000   | 4392     |
+| Noah                       | Star     | Emma Watson                | 12900000  | 4011     |
+| Noah                       | Star     | Russell Crowe              | 1470000   | 3993     |
+| Blended                    | Star     | Drew Barrymore             | 0         | 3694     |
+| X-Men: Days of Future Past | Star     | Ian McKellen               | 1050000   | 3306     |
+| Godzilla                   | Star     | Elizabeth Olsen            | 0         | 3177     |
+| Blended                    | Star     | Adam Sandler               | 1080000   | 2493     |
+| Godzilla                   | Star     | Aaron Taylor-Johnson       | 0         | 1586     |
+| X-Men: Days of Future Past | Star     | Peter Dinklage             | 0         | 1361     |
+| The other woman            | Star     | Leslie Mann                | 0         | 1092     |
+| The other woman            | Star     | Cameron Diaz               | 390000    | 1091     |
+| Edge of Tomorrow           | Star     | Emily Blunt                | 0         | 1015     |
+| Godzilla                   | Star     | Juliette Binoche           | 0         | 956      |
+| Noah                       | Star     | Anthony Hopkins            | 0         | 724      |
+| Edge of Tomorrow           | Star     | Bill Paxton                | 0         | 687      |
+| Blended                    | Movie    | Blended                    | 2770      | 618      |
+| Edge of Tomorrow           | Movie    | Edge of Tomorrow           | 1991      | 616      |
+| Noah                       | Director | Darren Aronofsky           | 169000    | 542      |
+| Transcendence              | Star     | Kate Mara                  | 114000    | 391      |
+| The other woman            | Movie    | The other woman            | 7958      | 382      |
+| X-Men: Days of Future Past | Director | Bryan Singer               | 159000    | 377      |
+| The Amazing Spider-Man 2   | Stars    | Paul Fiamatti              | 0         | 341      |
+| Noah                       | Star     | Jennifer Connelly          | 0         | 180      |
+| Transcendence              | Star     | Rebecca Hall               | 0         | 177      |
+| The other woman            | Star     | Nikolaj Coster-Waldau      | 0         | 122      |
+| Edge of Tomorrow           | Director | Doug Liman                 | 0         | 99       |
+| Maleficent                 | Star     | Juno Temple                | 0         | 82       |
+| The Amazing Spider-Man 2   | Director | Marc Webb                  | 40200     | 77       |
+| Maleficent                 | Star     | Sharlto Copley             | 0         | 70       |
+| Transcendence              | Director | Wally Pfister              | 0         | 59       |
+| Maleficent                 | Director | Robert Stromberg           | 0         | 41       |
+| The other woman            | Director | Nick Cassavetes            | 0         | 23       |
+| Blended                    | Director | Frank Coraci               | 0         | 11       |
+| Edge of Tomorrow           | Star     | Jeremy Piven               | 2510000   | 8        |
+| X-Men: Days of Future Past | Movie    | X-Men: Days of Future Past | 103000    | 1        |
++----------------------------+----------+----------------------------+-----------+----------+
+
+
+# Trend of movies (crew)
+
+Query:
+	select mt.movie, mt.position, mt.name, mt.followers, dayofyear(createdatformat), count(*) from tweetsFormat tf join movieTwitter mt on tf.movieid=mt.moviid group by mt.movie, mt.position, mt.name, mt.followers, dayofyear(createdatFormat) order by dayofyear(createdatFormat) desc limit 200
+	
++----------------------------+----------+--------------------------+-----------+----------------------------+----------+
+| movie                      | position | name                     | followers | dayofyear(createdatformat) | count(*) |
++----------------------------+----------+--------------------------+-----------+----------------------------+----------+
+| Godzilla                   | Star     | Bryan Cranston           | 1350000   | 129                        | 1110     |
+| The Amazing Spider-Man 2   | Movie    | The Amazing Spider-Man 2 | 212000    | 129                        | 898      |
+| Maleficent                 | Star     | Angelina Jolie           | 0         | 129                        | 9473     |
+| Edge of Tomorrow           | Star     | Bill Paxton              | 0         | 129                        | 132      |
+| Noah                       | Director | Darren Aronofsky         | 169000    | 129                        | 83       |
+| Blended                    | Star     | Drew Barrymore           | 0         | 129                        | 394      |
+| The Amazing Spider-Man 2   | Stars    | Jamie Foxx               | 3770000   | 129                        | 909      |
+| Maleficent                 | Star     | Juno Temple              | 0         | 129                        | 11       |
+| Blended                    | Movie    | Blended                  | 2770      | 129                        | 138      |
+| Blended                    | Star     | Adam Sandler             | 1080000   | 129                        | 402      |
+| The other woman            | Star     | Kate Upton               | 1370000   | 129                        | 354      |
+| Edge of Tomorrow           | Director | Doug Liman               | 0         | 129                        | 25       |
+| Maleficent                 | Star     | Elle Fanning             | 0         | 129                        | 1561     |
+| X-Men: Days of Future Past | Star     | Jennifer Lawrence        | 0         | 129                        | 10636    |
+| Transcendence              | Star     | Johnny Depp              | 0         | 129                        | 2286     |
+| The other woman            | Star     | Leslie Mann              | 0         | 129                        | 238      |
+| The other woman            | Director | Nick Cassavetes          | 0         | 129                        | 6        |
+| The Amazing Spider-Man 2   | Stars    | Emma Stone               | 0         | 129                        | 22502    |
+| The other woman            | Star     | Nikolaj Coster-Waldau    | 0         | 129                        | 5        |
+| Godzilla                   | Star     | Juliette Binoche         | 0         | 129                        | 109      |
+| X-Men: Days of Future Past | Star     | Halle Berry              | 0         | 129                        | 777      |
+| X-Men: Days of Future Past | Director | Bryan Singer             | 159000    | 129                        | 73       |
+| Transcendence              | Star     | Morgan Freeman           | 0         | 129                        | 1825     |
+| X-Men: Days of Future Past | Star     | Ellen Page               | 942000    | 129                        | 1766     |
+| X-Men: Days of Future Past | Star     | Patrick Stewart          | 1200000   | 129                        | 1394     |
+| Maleficent                 | Star     | Sharlto Copley           | 0         | 129                        | 9        |
+| Noah                       | Star     | Russell Crowe            | 1470000   | 129                        | 437      |
+| X-Men: Days of Future Past | Star     | Ian McKellen             | 1050000   | 129                        | 993      |
+| X-Men: Days of Future Past | Star     | Peter Dinklage           | 0         | 129                        | 275      |
+| Godzilla                   | Star     | Elizabeth Olsen          | 0         | 129                        | 592      |
+| Edge of Tomorrow           | Movie    | Edge of Tomorrow         | 1991      | 129                        | 112      |
+| Transcendence              | Star     | Kate Mara                | 114000    | 129                        | 38       |
+| X-Men: Days of Future Past | Star     | James McAvoy             | 0         | 129                        | 749      |
+| Transcendence              | Star     | Rebecca Hall             | 0         | 129                        | 5        |
+| X-Men: Days of Future Past | Star     | Michael Fassbender       | 0         | 129                        | 2307     |
+| Maleficent                 | Director | Robert Stromberg         | 0         | 129                        | 7        |
+| Edge of Tomorrow           | Star     | Emily Blunt              | 0         | 129                        | 120      |
+| Noah                       | Star     | Anthony Hopkins          | 0         | 129                        | 126      |
+| Transcendence              | Director | Wally Pfister            | 0         | 129                        | 8        |
+| The Amazing Spider-Man 2   | Director | Marc Webb                | 40200     | 129                        | 5        |
+| The other woman            | Movie    | The other woman          | 7958      | 129                        | 39       |
+| X-Men: Days of Future Past | Star     | Hugh Jackman             | 3970000   | 129                        | 1862     |
+| Noah                       | Star     | Emma Watson              | 12900000  | 129                        | 1045     |
+| Blended                    | Director | Frank Coraci             | 0         | 129                        | 1        |
+| The Amazing Spider-Man 2   | Stars    | Andrew Garfield          | 0         | 129                        | 17207    |
+| Edge of Tomorrow           | Star     | Tom Cruise               | 0         | 129                        | 1963     |
+| Godzilla                   | Star     | Aaron Taylor-Johnson     | 0         | 129                        | 761      |
+| The Amazing Spider-Man 2   | Stars    | Paul Fiamatti            | 0         | 129                        | 29       |
+| The other woman            | Star     | Cameron Diaz             | 390000    | 129                        | 143      |
+| Godzilla                   | Movie    | Godzilla                 | 28500     | 129                        | 3703     |
+| Noah                       | Star     | Jennifer Connelly        | 0         | 129                        | 42       |
+| Noah                       | Star     | Russell Crowe            | 1470000   | 128                        | 681      |
+| Maleficent                 | Star     | Angelina Jolie           | 0         | 128                        | 9835     |
+| The other woman            | Star     | Nikolaj Coster-Waldau    | 0         | 128                        | 9        |
+| The Amazing Spider-Man 2   | Movie    | The Amazing Spider-Man 2 | 212000    | 128                        | 1550     |
+| The other woman            | Movie    | The other woman          | 7958      | 128                        | 78       |
+| The Amazing Spider-Man 2   | Stars    | Paul Fiamatti            | 0         | 128                        | 40       |
+| Godzilla                   | Star     | Aaron Taylor-Johnson     | 0         | 128                        | 95       |
+| X-Men: Days of Future Past | Star     | Hugh Jackman             | 3970000   | 128                        | 1301     |
+| The other woman            | Star     | Kate Upton               | 1370000   | 128                        | 1290     |
+| The Amazing Spider-Man 2   | Stars    | Jamie Foxx               | 3770000   | 128                        | 778      |
+| X-Men: Days of Future Past | Star     | Michael Fassbender       | 0         | 128                        | 1457     |
+| Noah                       | Star     | Emma Watson              | 12900000  | 128                        | 567      |
+| The Amazing Spider-Man 2   | Stars    | Emma Stone               | 0         | 128                        | 31073    |
+| X-Men: Days of Future Past | Star     | Peter Dinklage           | 0         | 128                        | 199      |
+| Edge of Tomorrow           | Star     | Tom Cruise               | 0         | 128                        | 2804     |
+| Noah                       | Director | Darren Aronofsky         | 169000    | 128                        | 56       |
+| Transcendence              | Star     | Johnny Depp              | 0         | 128                        | 2490     |
+| Blended                    | Star     | Adam Sandler             | 1080000   | 128                        | 739      |
+| Transcendence              | Star     | Morgan Freeman           | 0         | 128                        | 1167     |
+| Blended                    | Director | Frank Coraci             | 0         | 128                        | 1        |
+| Noah                       | Star     | Jennifer Connelly        | 0         | 128                        | 37       |
+| Edge of Tomorrow           | Star     | Emily Blunt              | 0         | 128                        | 384      |
+| Noah                       | Star     | Anthony Hopkins          | 0         | 128                        | 90       |
+| Godzilla                   | Movie    | Godzilla                 | 28500     | 128                        | 1015     |
+| The Amazing Spider-Man 2   | Stars    | Andrew Garfield          | 0         | 128                        | 20146    |
+| The other woman            | Director | Nick Cassavetes          | 0         | 128                        | 3        |
+| Transcendence              | Director | Wally Pfister            | 0         | 128                        | 14       |
+| Transcendence              | Star     | Rebecca Hall             | 0         | 128                        | 7        |
+| Godzilla                   | Star     | Elizabeth Olsen          | 0         | 128                        | 419      |
+| X-Men: Days of Future Past | Star     | Ian McKellen             | 1050000   | 128                        | 332      |
+| X-Men: Days of Future Past | Star     | Ellen Page               | 942000    | 128                        | 1555     |
+| Godzilla                   | Star     | Bryan Cranston           | 1350000   | 128                        | 290      |
+| Maleficent                 | Star     | Sharlto Copley           | 0         | 128                        | 11       |
+| Edge of Tomorrow           | Star     | Jeremy Piven             | 2510000   | 128                        | 7        |
+| Blended                    | Star     | Drew Barrymore           | 0         | 128                        | 683      |
+| Godzilla                   | Star     | Juliette Binoche         | 0         | 128                        | 560      |
+| X-Men: Days of Future Past | Director | Bryan Singer             | 159000    | 128                        | 86       |
+| Edge of Tomorrow           | Star     | Bill Paxton              | 0         | 128                        | 151      |
+| Edge of Tomorrow           | Director | Doug Liman               | 0         | 128                        | 5        |
+| Blended                    | Movie    | Blended                  | 2770      | 128                        | 122      |
+| Edge of Tomorrow           | Movie    | Edge of Tomorrow         | 1991      | 128                        | 174      |
+| Maleficent                 | Star     | Elle Fanning             | 0         | 128                        | 681      |
+| X-Men: Days of Future Past | Star     | Jennifer Lawrence        | 0         | 128                        | 18016    |
+| The other woman            | Star     | Leslie Mann              | 0         | 128                        | 193      |
+| X-Men: Days of Future Past | Star     | Patrick Stewart          | 1200000   | 128                        | 727      |
+| The other woman            | Star     | Cameron Diaz             | 390000    | 128                        | 145      |
+| X-Men: Days of Future Past | Star     | Halle Berry              | 0         | 128                        | 891      |
+| Maleficent                 | Star     | Juno Temple              | 0         | 128                        | 8        |
+| Transcendence              | Star     | Kate Mara                | 114000    | 128                        | 63       |
+| The Amazing Spider-Man 2   | Director | Marc Webb                | 40200     | 128                        | 20       |
+| Maleficent                 | Director | Robert Stromberg         | 0         | 128                        | 7        |
+| X-Men: Days of Future Past | Star     | James McAvoy             | 0         | 128                        | 738      |
+| X-Men: Days of Future Past | Star     | Ian McKellen             | 1050000   | 127                        | 397      |
+| The Amazing Spider-Man 2   | Stars    | Andrew Garfield          | 0         | 127                        | 36786    |
+| X-Men: Days of Future Past | Star     | Jennifer Lawrence        | 0         | 127                        | 9874     |
+| Godzilla                   | Star     | Juliette Binoche         | 0         | 127                        | 151      |
+| Transcendence              | Director | Wally Pfister            | 0         | 127                        | 14       |
+| The Amazing Spider-Man 2   | Stars    | Paul Fiamatti            | 0         | 127                        | 32       |
+| Edge of Tomorrow           | Star     | Tom Cruise               | 0         | 127                        | 1375     |
+| X-Men: Days of Future Past | Star     | Michael Fassbender       | 0         | 127                        | 920      |
+| Edge of Tomorrow           | Movie    | Edge of Tomorrow         | 1991      | 127                        | 145      |
+| Transcendence              | Star     | Johnny Depp              | 0         | 127                        | 2198     |
+| X-Men: Days of Future Past | Star     | Halle Berry              | 0         | 127                        | 2848     |
+| The other woman            | Star     | Nikolaj Coster-Waldau    | 0         | 127                        | 10       |
+| Noah                       | Star     | Anthony Hopkins          | 0         | 127                        | 169      |
+| Transcendence              | Star     | Kate Mara                | 114000    | 127                        | 137      |
+| Edge of Tomorrow           | Star     | Emily Blunt              | 0         | 127                        | 232      |
+| Blended                    | Movie    | Blended                  | 2770      | 127                        | 65       |
+| Blended                    | Star     | Drew Barrymore           | 0         | 127                        | 887      |
+| X-Men: Days of Future Past | Star     | Peter Dinklage           | 0         | 127                        | 249      |
+| Godzilla                   | Star     | Bryan Cranston           | 1350000   | 127                        | 682      |
+| Edge of Tomorrow           | Director | Doug Liman               | 0         | 127                        | 12       |
+| Noah                       | Star     | Emma Watson              | 12900000  | 127                        | 779      |
+| Maleficent                 | Star     | Juno Temple              | 0         | 127                        | 6        |
+| Blended                    | Director | Frank Coraci             | 0         | 127                        | 1        |
+| Noah                       | Director | Darren Aronofsky         | 169000    | 127                        | 124      |
+| Maleficent                 | Star     | Sharlto Copley           | 0         | 127                        | 14       |
+| Maleficent                 | Star     | Elle Fanning             | 0         | 127                        | 1193     |
+| The Amazing Spider-Man 2   | Stars    | Jamie Foxx               | 3770000   | 127                        | 522      |
+| X-Men: Days of Future Past | Star     | Patrick Stewart          | 1200000   | 127                        | 524      |
+| Edge of Tomorrow           | Star     | Bill Paxton              | 0         | 127                        | 221      |
+| Blended                    | Star     | Adam Sandler             | 1080000   | 127                        | 331      |
+| The Amazing Spider-Man 2   | Stars    | Emma Stone               | 0         | 127                        | 41818    |
+| The other woman            | Star     | Leslie Mann              | 0         | 127                        | 225      |
+| Noah                       | Star     | Russell Crowe            | 1470000   | 127                        | 1248     |
+| X-Men: Days of Future Past | Star     | Ellen Page               | 942000    | 127                        | 1520     |
+| X-Men: Days of Future Past | Star     | James McAvoy             | 0         | 127                        | 611      |
+| The other woman            | Star     | Kate Upton               | 1370000   | 127                        | 626      |
+| Maleficent                 | Director | Robert Stromberg         | 0         | 127                        | 4        |
+| Maleficent                 | Star     | Angelina Jolie           | 0         | 127                        | 9167     |
+| X-Men: Days of Future Past | Star     | Hugh Jackman             | 3970000   | 127                        | 793      |
+| The Amazing Spider-Man 2   | Movie    | The Amazing Spider-Man 2 | 212000    | 127                        | 1169     |
+| The other woman            | Movie    | The other woman          | 7958      | 127                        | 62       |
+| Godzilla                   | Movie    | Godzilla                 | 28500     | 127                        | 894      |
+| Godzilla                   | Star     | Aaron Taylor-Johnson     | 0         | 127                        | 140      |
+| The other woman            | Director | Nick Cassavetes          | 0         | 127                        | 7        |
+| Noah                       | Star     | Jennifer Connelly        | 0         | 127                        | 34       |
+| Transcendence              | Star     | Rebecca Hall             | 0         | 127                        | 23       |
+| The other woman            | Star     | Cameron Diaz             | 390000    | 127                        | 186      |
+| Godzilla                   | Star     | Elizabeth Olsen          | 0         | 127                        | 583      |
+| Transcendence              | Star     | Morgan Freeman           | 0         | 127                        | 1363     |
+| The Amazing Spider-Man 2   | Director | Marc Webb                | 40200     | 127                        | 15       |
+| X-Men: Days of Future Past | Director | Bryan Singer             | 159000    | 127                        | 50       |
+| Godzilla                   | Star     | Aaron Taylor-Johnson     | 0         | 126                        | 302      |
+| X-Men: Days of Future Past | Star     | Michael Fassbender       | 0         | 126                        | 1308     |
+| Noah                       | Star     | Russell Crowe            | 1470000   | 126                        | 532      |
+| The Amazing Spider-Man 2   | Stars    | Andrew Garfield          | 0         | 126                        | 19577    |
+| The other woman            | Movie    | The other woman          | 7958      | 126                        | 54       |
+| Edge of Tomorrow           | Director | Doug Liman               | 0         | 126                        | 11       |
+| Edge of Tomorrow           | Movie    | Edge of Tomorrow         | 1991      | 126                        | 121      |
+| X-Men: Days of Future Past | Star     | Jennifer Lawrence        | 0         | 126                        | 9391     |
+| X-Men: Days of Future Past | Star     | Halle Berry              | 0         | 126                        | 3676     |
+| Transcendence              | Star     | Johnny Depp              | 0         | 126                        | 6444     |
+| X-Men: Days of Future Past | Star     | Ellen Page               | 942000    | 126                        | 1609     |
+| X-Men: Days of Future Past | Star     | James McAvoy             | 0         | 126                        | 1282     |
+| Noah                       | Star     | Emma Watson              | 12900000  | 126                        | 604      |
+| Godzilla                   | Star     | Bryan Cranston           | 1350000   | 126                        | 2125     |
+| Maleficent                 | Star     | Angelina Jolie           | 0         | 126                        | 5313     |
+| Transcendence              | Star     | Rebecca Hall             | 0         | 126                        | 55       |
+| Blended                    | Star     | Adam Sandler             | 1080000   | 126                        | 494      |
+| Blended                    | Star     | Drew Barrymore           | 0         | 126                        | 1100     |
+| X-Men: Days of Future Past | Star     | Hugh Jackman             | 3970000   | 126                        | 862      |
+| The Amazing Spider-Man 2   | Movie    | The Amazing Spider-Man 2 | 212000    | 126                        | 1646     |
+| Noah                       | Star     | Anthony Hopkins          | 0         | 126                        | 133      |
+| Maleficent                 | Director | Robert Stromberg         | 0         | 126                        | 14       |
+| Noah                       | Star     | Jennifer Connelly        | 0         | 126                        | 16       |
+| Edge of Tomorrow           | Star     | Jeremy Piven             | 2510000   | 126                        | 1        |
+| X-Men: Days of Future Past | Director | Bryan Singer             | 159000    | 126                        | 70       |
+| Edge of Tomorrow           | Star     | Tom Cruise               | 0         | 126                        | 1080     |
+| Noah                       | Director | Darren Aronofsky         | 169000    | 126                        | 74       |
+| The Amazing Spider-Man 2   | Stars    | Paul Fiamatti            | 0         | 126                        | 124      |
+| Godzilla                   | Star     | Elizabeth Olsen          | 0         | 126                        | 878      |
+| Maleficent                 | Star     | Juno Temple              | 0         | 126                        | 13       |
+| X-Men: Days of Future Past | Star     | Ian McKellen             | 1050000   | 126                        | 264      |
+| Transcendence              | Star     | Morgan Freeman           | 0         | 126                        | 1259     |
+| X-Men: Days of Future Past | Star     | Peter Dinklage           | 0         | 126                        | 223      |
+| Maleficent                 | Star     | Sharlto Copley           | 0         | 126                        | 11       |
+| The Amazing Spider-Man 2   | Stars    | Emma Stone               | 0         | 126                        | 30912    |
+| The other woman            | Star     | Kate Upton               | 1370000   | 126                        | 851      |
+| Godzilla                   | Star     | Juliette Binoche         | 0         | 126                        | 28       |
+| Transcendence              | Star     | Kate Mara                | 114000    | 126                        | 75       |
+| Blended                    | Movie    | Blended                  | 2770      | 126                        | 144      |
+| Blended                    | Director | Frank Coraci             | 0         | 126                        | 5        |
+| The other woman            | Director | Nick Cassavetes          | 0         | 126                        | 3        |
+| Edge of Tomorrow           | Star     | Bill Paxton              | 0         | 126                        | 96       |
+| Transcendence              | Director | Wally Pfister            | 0         | 126                        | 12       |
+| The other woman            | Star     | Cameron Diaz             | 390000    | 126                        | 155      |
+| Godzilla                   | Movie    | Godzilla                 | 28500     | 126                        | 818      |
+| The Amazing Spider-Man 2   | Director | Marc Webb                | 40200     | 126                        | 6        |
++----------------------------+----------+--------------------------+-----------+----------------------------+----------+
+
+
+#Trends of movies
+Query:	
+	select mt.movie, dayofyear(createdatformat), count(*) from tweetsFormat tf join movieTwitter mt on tf.movieid=mt.moviid group by mt.movie, dayofyear(createdatFormat) order by dayofyear(createdatFormat) desc limit 200
+
+
++----------------------------+----------------------------+----------+
+| movie                      | dayofyear(createdatformat) | count(*) |
++----------------------------+----------------------------+----------+
+| Transcendence              | 129                        | 4162     |
+| Blended                    | 129                        | 935      |
+| X-Men: Days of Future Past | 129                        | 20832    |
+| Edge of Tomorrow           | 129                        | 2352     |
+| Godzilla                   | 129                        | 6275     |
+| Noah                       | 129                        | 1733     |
+| Maleficent                 | 129                        | 11061    |
+| The other woman            | 129                        | 785      |
+| The Amazing Spider-Man 2   | 129                        | 41550    |
+| Edge of Tomorrow           | 128                        | 3525     |
+| Transcendence              | 128                        | 3741     |
+| X-Men: Days of Future Past | 128                        | 25302    |
+| Maleficent                 | 128                        | 10542    |
+| The other woman            | 128                        | 1718     |
+| Noah                       | 128                        | 1431     |
+| The Amazing Spider-Man 2   | 128                        | 53607    |
+| Blended                    | 128                        | 1545     |
+| Godzilla                   | 128                        | 2379     |
+| X-Men: Days of Future Past | 127                        | 17786    |
+| The other woman            | 127                        | 1116     |
+| Godzilla                   | 127                        | 2450     |
+| Noah                       | 127                        | 2354     |
+| Maleficent                 | 127                        | 10384    |
+| The Amazing Spider-Man 2   | 127                        | 80342    |
+| Blended                    | 127                        | 1284     |
+| Transcendence              | 127                        | 3735     |
+| Edge of Tomorrow           | 127                        | 1985     |
+| Godzilla                   | 126                        | 4151     |
+| Noah                       | 126                        | 1359     |
+| The Amazing Spider-Man 2   | 126                        | 53768    |
+| Edge of Tomorrow           | 126                        | 1425     |
+| Maleficent                 | 126                        | 6334     |
+| Transcendence              | 126                        | 7845     |
+| The other woman            | 126                        | 1267     |
+| X-Men: Days of Future Past | 126                        | 19225    |
+| Blended                    | 126                        | 1743     |
+| Edge of Tomorrow           | 125                        | 1393     |
+| Noah                       | 125                        | 1736     |
+| Transcendence              | 125                        | 4112     |
+| The Amazing Spider-Man 2   | 125                        | 43081    |
+| Blended                    | 125                        | 827      |
+| Godzilla                   | 125                        | 2206     |
+| X-Men: Days of Future Past | 125                        | 17803    |
+| Maleficent                 | 125                        | 3993     |
+| The other woman            | 125                        | 1693     |
+| Godzilla                   | 124                        | 658      |
+| Blended                    | 124                        | 482      |
+| The Amazing Spider-Man 2   | 124                        | 22482    |
+| The other woman            | 124                        | 523      |
+| Maleficent                 | 124                        | 1006     |
+| Edge of Tomorrow           | 124                        | 1225     |
+| X-Men: Days of Future Past | 124                        | 9845     |
+| Noah                       | 124                        | 837      |
+| Transcendence              | 124                        | 3041     |
++----------------------------+----------------------------+----------+
+
+
+# Last 20 tweets talking about SpiderMan
+
+Query:
+	select * from tweetsFormat where movieid between 1 and 6 order by createdat desc limit 20
+	
+	
++--------------------+------------+---------------------+---------------+-------------+----------------------------+--------------------------------+---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+---------+
+| tweetid            | userid     | username            | userfollowers | userfriends | usertimezone               | createdat                      | createdatformat     | tweet                                                                                                                                        | movieid |
++--------------------+------------+---------------------+---------------+-------------+----------------------------+--------------------------------+---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+---------+
+| 464555353330683905 | 198678209  | Carolina Roldán     | 163           | 397         | Buenos Aires               | Fri May 09 00:00:02 +0000 2014 | 2014-05-09 00:00:02 | RT @9gagtv: Emma Stone Shows You How Your Every Weekend Is Really Spent (video): http://t.co/f7Y89iVp6N http://t.co/ssEkXnAUkE               | 4       |
+| 464555363287957505 | 549684962  | kaylee clark        | 129           | 299         |                            | Fri May 09 00:00:04 +0000 2014 | 2014-05-09 00:00:04 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 4       |
+| 464555363287957505 | 549684962  | kaylee clark        | 129           | 299         |                            | Fri May 09 00:00:04 +0000 2014 | 2014-05-09 00:00:04 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 3       |
+| 464555375753437185 | 98074824   | Rahma               | 1093          | 592         | Jakarta                    | Fri May 09 00:00:07 +0000 2014 | 2014-05-09 00:00:07 | 'Emma Stone: Garfield's my superhero'                                                                                                        | 4       |
+| 464555376596500481 | 753408584  | Sarah Howell        | 29            | 87          |                            | Fri May 09 00:00:07 +0000 2014 | 2014-05-09 00:00:07 | RT @ItsReginaG: Emma Stone is a genius http://t.co/u6SP94ZKXz                                                                                | 4       |
+| 464555396372647937 | 285053309  | Only Minions™       | 143763        | 651         | Jakarta                    | Fri May 09 00:00:12 +0000 2014 | 2014-05-09 00:00:12 | RT @itsTMZnewsz: Emma Stone Wears see-through dress at Spider-Man 2 Rome premiere  http://t.co/g6DaKfVBxj                                    | 4       |
+| 464555402236272640 | 2228900506 | Ana Mosu            | 133           | 148         |                            | Fri May 09 00:00:13 +0000 2014 | 2014-05-09 00:00:13 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 3       |
+| 464555402236272640 | 2228900506 | Ana Mosu            | 133           | 148         |                            | Fri May 09 00:00:13 +0000 2014 | 2014-05-09 00:00:13 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 4       |
+| 464555400600510464 | 2203909162 | yyy                 | 29            | 87          |                            | Fri May 09 00:00:13 +0000 2014 | 2014-05-09 00:00:13 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 4       |
+| 464555400600510464 | 2203909162 | yyy                 | 29            | 87          |                            | Fri May 09 00:00:13 +0000 2014 | 2014-05-09 00:00:13 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 3       |
+| 464555409874124801 | 187748379  | ابراهيم حسن العامري | 112           | 336         | Baghdad                    | Fri May 09 00:00:15 +0000 2014 | 2014-05-09 00:00:15 | I liked a @YouTube video http://t.co/4kVWWRA7tG Lip Sync Battle with Emma Stone                                                              | 4       |
+| 464555411207892993 | 587725246  | Paco Bértolo        | 124           | 62          | Eastern Time (US & Canada) | Fri May 09 00:00:15 +0000 2014 | 2014-05-09 00:00:15 | RT @9gagtv: Emma Stone Shows You How Your Every Weekend Is Really Spent (video): http://t.co/f7Y89iVp6N http://t.co/ssEkXnAUkE               | 4       |
+| 464555439414583296 | 493628632  | Emily Tedesco       | 382           | 307         |                            | Fri May 09 00:00:22 +0000 2014 | 2014-05-09 00:00:22 | “@SoDamnTrue:#ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man.And you don't exist http://t.co/JADxsUbs11”😍 | 3       |
+| 464555440765157377 | 751142323  | Terence Salazar     | 299           | 185         | Beijing                    | Fri May 09 00:00:22 +0000 2014 | 2014-05-09 00:00:22 | “@Sheldon_Jokes: Emma stone is a genius http://t.co/tk6J45rL60” Yes Emma Stone, yes. ☺️                                                      | 4       |
+| 464555439414583296 | 493628632  | Emily Tedesco       | 382           | 307         |                            | Fri May 09 00:00:22 +0000 2014 | 2014-05-09 00:00:22 | “@SoDamnTrue:#ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man.And you don't exist http://t.co/JADxsUbs11”😍 | 4       |
+| 464555444233838595 | 338574027  | Natalie Manning     | 867           | 386         | Quito                      | Fri May 09 00:00:23 +0000 2014 | 2014-05-09 00:00:23 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 3       |
+| 464555444233838595 | 338574027  | Natalie Manning     | 867           | 386         | Quito                      | Fri May 09 00:00:23 +0000 2014 | 2014-05-09 00:00:23 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 4       |
+| 464555447371169793 | 2295145524 | Brittany Hutchinson | 408           | 439         |                            | Fri May 09 00:00:24 +0000 2014 | 2014-05-09 00:00:24 | RT @funnyortruth: Emma Stone is a genius. http://t.co/HVr4uzmtH2                                                                             | 4       |
+| 464555449740980226 | 2254756062 | Damn                | 153           | 555         |                            | Fri May 09 00:00:24 +0000 2014 | 2014-05-09 00:00:24 | RT @9gagtv: Emma Stone Shows You How Your Every Weekend Is Really Spent (video): http://t.co/f7Y89iVp6N http://t.co/ssEkXnAUkE               | 4       |
+| 464555468711813120 | 404461696  | Jessicuh            | 319           | 271         | Pacific Time (US & Canada) | Fri May 09 00:00:29 +0000 2014 | 2014-05-09 00:00:29 | RT @thoughtskendalI: #ThisCouldBeUsBut I'm not Emma Stone and you're not Andrew Garfield. Or Spider-Man. And I'm fat. And you don't exist h… | 3       |
++--------------------+------------+---------------------+---------------+-------------+----------------------------+--------------------------------+---------------------+----------------------------------------------------------------------------------------------------------------------------------------------+---------+
+	

@@ -4,20 +4,15 @@
 ==========================================================================================
 ==========================================================================================
 
-#Connect to Cluster
+#Connect to Cluster (aws)
 	ssh -i Keys/HadoopCluster.pem hadoop@54.72.183.40
 
-#Generate the sparse vectors
-	hadoop fs -rm -R incoming/SetVectors/*
-	hadoop fs -rmdir incoming/SetVectors
-	mahout seq2sparse -i incoming/tweetsToClassify/20140506-182914 -o incoming/SetVectors -lnorm -nv -wt tfidf	
 		
-#Classify the tweets
+#Delete the folder if exists
+	hadoop fs -rm -R process/tweetsClassified
 
-	cat /home/hadoop/conf/mapred-site.xml
-	hadoop fs -rm -R process/tweetsClassified/*
-	hadoop fs -rmdir process/tweetsClassified
-	hadoop jar TwitterClassifier.jar sentimentModel sentimentSetVectors/df-count/part-r-00002 sentimentSetVectors/dictionary.file-0 incoming/tweetsToClassify/20140506-182914 process/tweetsClassified
+#Execute the MapReduce process (not tested!!!!)
+	hadoop jar TwitterClassifier.jar sentimentModel sentimentSetVectors/df-count/df-count-merge sentimentSetVectors/dictionary.file-0 incoming/tweetsToClassify process/tweetsClassified 
 	
 	
 	
